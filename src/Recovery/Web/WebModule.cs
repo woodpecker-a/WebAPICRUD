@@ -1,5 +1,5 @@
-﻿using Autofac.Core;
+﻿using Autofac;
 
-internal class WebModule : IModule
+internal class WebModule : Module
 {
 }
