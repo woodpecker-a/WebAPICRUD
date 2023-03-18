@@ -2,4 +2,7 @@
 
 internal class WebModule : Module
 {
+    public WebModule()
+    {
+    }
 }
