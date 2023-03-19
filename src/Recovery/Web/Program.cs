@@ -1,5 +1,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Infrastructure;
 using Infrastructure.DbContexts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,18 +19,18 @@ try
 {
 
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    var migrationAssembly = Assembly.GetExecutingAssembly().FullName;
+    var assemblyName = Assembly.GetExecutingAssembly().FullName;
 
     builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
     builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder =>
     {
         containerBuilder.RegisterModule(new WebModule());
-        //containerBuilder.RegisterModule(new InfrastructureModule(connectionString,
-        //    assemblyName));
+        containerBuilder.RegisterModule(new InfrastructureModule(connectionString,
+            assemblyName));
     });
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString, m => m.MigrationsAssembly(migrationAssembly)));
+            options.UseSqlServer(connectionString, m => m.MigrationsAssembly(assemblyName)));
     builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
     builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
