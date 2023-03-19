@@ -15,6 +15,7 @@ namespace Web.Controllers
 
         public IActionResult Index()
         {
+            _logger.LogInformation("home/index");
             return View();
         }
 

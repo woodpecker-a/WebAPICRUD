@@ -65,9 +65,9 @@ try
 }
 catch(Exception ex)
 {
-    
+    Log.Fatal("Application Crushed", ex);
 }
 finally
 {
-    
+    Log.CloseAndFlush();
 }
