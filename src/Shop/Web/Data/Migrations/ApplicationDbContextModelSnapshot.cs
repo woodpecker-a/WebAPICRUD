@@ -105,13 +105,40 @@ namespace Web.Data.Migrations
                     b.ToTable("Contacts", (string)null);
                 });
 
+            modelBuilder.Entity("Infrastructure.Entities.ContactCustomer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId");
+
+                    b.ToTable("ContactCustomer", (string)null);
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.ContactStore", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId");
+
+                    b.ToTable("ContactStore", (string)null);
+                });
+
             modelBuilder.Entity("Infrastructure.Entities.Customer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ContactId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FirstName")
@@ -123,8 +150,6 @@ namespace Web.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContactId");
 
                     b.ToTable("Customers");
                 });
@@ -148,9 +173,14 @@ namespace Web.Data.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("StoreId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("PurchaseId");
+
+                    b.HasIndex("StoreId");
 
                     b.ToTable("Products");
                 });
@@ -167,7 +197,7 @@ namespace Web.Data.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("StoreNameId")
+                    b.Property<Guid>("StoreId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("TotalPrice")
@@ -177,7 +207,7 @@ namespace Web.Data.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("StoreNameId");
+                    b.HasIndex("StoreId");
 
                     b.ToTable("Purchases", (string)null);
                 });
@@ -188,16 +218,11 @@ namespace Web.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ContactId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ContactId");
 
                     b.ToTable("Stores");
                 });
@@ -438,7 +463,7 @@ namespace Web.Data.Migrations
                     b.Navigation("Store");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Customer", b =>
+            modelBuilder.Entity("Infrastructure.Entities.ContactCustomer", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Contact", "Contact")
                         .WithMany()
@@ -446,7 +471,34 @@ namespace Web.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.Customer", "Customer")
+                        .WithOne("Contact")
+                        .HasForeignKey("Infrastructure.Entities.ContactCustomer", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Contact");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.ContactStore", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Store", "Store")
+                        .WithOne("Contact")
+                        .HasForeignKey("Infrastructure.Entities.ContactStore", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Product", b =>
@@ -454,36 +506,29 @@ namespace Web.Data.Migrations
                     b.HasOne("Infrastructure.Entities.Purchase", null)
                         .WithMany("Products")
                         .HasForeignKey("PurchaseId");
+
+                    b.HasOne("Infrastructure.Entities.Store", null)
+                        .WithMany("Products")
+                        .HasForeignKey("StoreId");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Purchase", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Customer", "Customer")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Infrastructure.Entities.Store", "StoreName")
-                        .WithMany()
-                        .HasForeignKey("StoreNameId")
+                    b.HasOne("Infrastructure.Entities.Store", "Store")
+                        .WithMany("Sells")
+                        .HasForeignKey("StoreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Customer");
 
-                    b.Navigation("StoreName");
-                });
-
-            modelBuilder.Entity("Infrastructure.Entities.Store", b =>
-                {
-                    b.HasOne("Infrastructure.Entities.Contact", "Contact")
-                        .WithMany()
-                        .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Contact");
+                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -541,6 +586,11 @@ namespace Web.Data.Migrations
                 {
                     b.Navigation("Address")
                         .IsRequired();
+
+                    b.Navigation("Contact")
+                        .IsRequired();
+
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Purchase", b =>
@@ -552,6 +602,13 @@ namespace Web.Data.Migrations
                 {
                     b.Navigation("Address")
                         .IsRequired();
+
+                    b.Navigation("Contact")
+                        .IsRequired();
+
+                    b.Navigation("Products");
+
+                    b.Navigation("Sells");
                 });
 #pragma warning restore 612, 618
         }

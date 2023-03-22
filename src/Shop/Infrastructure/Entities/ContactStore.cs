@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Entities
 {
-    public class Customer
+    public class ContactStore
     {
         public Guid Id { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public Store Store { get; set; }
         public Contact Contact { get; set; }
-        public AddressCustomer Address { get; set; }
     }
 }

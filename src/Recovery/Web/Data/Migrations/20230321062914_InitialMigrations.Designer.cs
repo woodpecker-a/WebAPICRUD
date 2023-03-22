@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Web.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230319163533_InitialMigrations")]
+    [Migration("20230321062914_InitialMigrations")]
     partial class InitialMigrations
     {
         /// <inheritdoc />
@@ -52,7 +52,37 @@ namespace Web.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Address");
+                    b.ToTable("Addresses", (string)null);
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.AddressCustomer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.ToTable("AddressCustomer", (string)null);
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.AddressStore", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.ToTable("AddressStore", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Contact", b =>
@@ -75,16 +105,13 @@ namespace Web.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contact");
+                    b.ToTable("Contacts", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Customer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AddressId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ContactId")
@@ -99,8 +126,6 @@ namespace Web.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("ContactId");
 
@@ -120,21 +145,50 @@ namespace Web.Data.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
+                    b.Property<Guid?>("PurchaseId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Stock")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PurchaseId");
+
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Purchase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("StoreNameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("TotalPrice")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("StoreNameId");
+
+                    b.ToTable("Purchases", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.Entities.Store", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AddressId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ContactId")
@@ -145,8 +199,6 @@ namespace Web.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddressId");
 
                     b.HasIndex("ContactId");
 
@@ -351,7 +403,7 @@ namespace Web.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Customer", b =>
+            modelBuilder.Entity("Infrastructure.Entities.AddressCustomer", b =>
                 {
                     b.HasOne("Infrastructure.Entities.Address", "Address")
                         .WithMany()
@@ -359,32 +411,80 @@ namespace Web.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.Customer", "Customer")
+                        .WithOne("Address")
+                        .HasForeignKey("Infrastructure.Entities.AddressCustomer", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.AddressStore", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Infrastructure.Entities.Store", "Store")
+                        .WithOne("Address")
+                        .HasForeignKey("Infrastructure.Entities.AddressStore", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Store");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Customer", b =>
+                {
                     b.HasOne("Infrastructure.Entities.Contact", "Contact")
                         .WithMany()
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Address");
 
                     b.Navigation("Contact");
                 });
 
-            modelBuilder.Entity("Infrastructure.Entities.Store", b =>
+            modelBuilder.Entity("Infrastructure.Entities.Product", b =>
                 {
-                    b.HasOne("Infrastructure.Entities.Address", "Address")
+                    b.HasOne("Infrastructure.Entities.Purchase", null)
+                        .WithMany("Products")
+                        .HasForeignKey("PurchaseId");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Purchase", b =>
+                {
+                    b.HasOne("Infrastructure.Entities.Customer", "Customer")
                         .WithMany()
-                        .HasForeignKey("AddressId")
+                        .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Infrastructure.Entities.Store", "StoreName")
+                        .WithMany()
+                        .HasForeignKey("StoreNameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("StoreName");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Store", b =>
+                {
                     b.HasOne("Infrastructure.Entities.Contact", "Contact")
                         .WithMany()
                         .HasForeignKey("ContactId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Address");
 
                     b.Navigation("Contact");
                 });
@@ -437,6 +537,23 @@ namespace Web.Data.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Customer", b =>
+                {
+                    b.Navigation("Address")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Purchase", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("Infrastructure.Entities.Store", b =>
+                {
+                    b.Navigation("Address")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

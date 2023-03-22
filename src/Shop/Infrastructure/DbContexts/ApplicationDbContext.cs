@@ -34,6 +34,8 @@ namespace Infrastructure.DbContexts
             builder.Entity<Contact>().ToTable("Contacts");
             builder.Entity<AddressCustomer>().ToTable("AddressCustomer");
             builder.Entity<AddressStore>().ToTable("AddressStore");
+            builder.Entity<ContactCustomer>().ToTable("ContactCustomer");
+            builder.Entity<ContactStore>().ToTable("ContactStore");
 
             builder.Entity<Customer>()
                 .HasOne(a => a.Address)
@@ -44,6 +46,26 @@ namespace Infrastructure.DbContexts
                 .HasOne(a => a.Address)
                 .WithOne(s => s.Store)
                 .HasForeignKey<AddressStore>(sa => sa.Id);
+
+            builder.Entity<Customer>()
+                .HasOne(c => c.Contact)
+                .WithOne(cs => cs.Customer)
+                .HasForeignKey<ContactCustomer>(cc => cc.Id);
+
+            builder.Entity<Store>()
+                .HasOne(c => c.Contact)
+                .WithOne(cs => cs.Store)
+                .HasForeignKey<ContactStore>(cc => cc.Id);
+
+            builder.Entity<Purchase>()
+                .HasOne(c => c.Customer)
+                .WithMany(s => s.Orders)
+                .HasForeignKey(p => p.CustomerId);
+
+            builder.Entity<Purchase>()
+                .HasOne(s => s.Store)
+                .WithMany(p => p.Sells)
+                .HasForeignKey(p => p.StoreId);
 
             base.OnModelCreating(builder);
         }
