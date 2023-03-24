@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Entities
 {
-    public class ContactStore : IEntity<Guid>
+    public interface IEntity<T> 
     {
-        public Guid Id { get; set; }
-        public Store Store { get; set; }
-        public Contact Contact { get; set; }
+        T Id { get; set; }
     }
 }

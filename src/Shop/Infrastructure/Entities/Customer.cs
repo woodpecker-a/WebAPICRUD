@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Entities
 {
-    public class Customer
+    public class Customer : IEntity<Guid>
     {
         public Guid Id { get; set; }
         public string FirstName { get; set; }

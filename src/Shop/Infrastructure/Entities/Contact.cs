@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Entities
 {
-    public class Contact
+    public class Contact : IEntity<Guid>
     {
         public Guid Id { get; set; }
         public string Email { get; set; }

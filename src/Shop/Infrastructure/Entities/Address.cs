@@ -1,6 +1,6 @@
 ﻿namespace Infrastructure.Entities
 {
-    public class Address
+    public class Address : IEntity<Guid>
     {
         public Guid Id { get; set; }
         public int HouseNo { get; set; }
