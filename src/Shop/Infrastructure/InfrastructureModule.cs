@@ -1,5 +1,8 @@
 ﻿using Autofac;
 using Infrastructure.DbContexts;
+using Infrastructure.Repositories;
+using Infrastructure.Services;
+using Infrastructure.UnitOfWorks;
 
 namespace Infrastructure
 {
@@ -22,6 +25,15 @@ namespace Infrastructure
             builder.RegisterType<ApplicationDbContext>().As<IApplicationDbContext>()
                 .WithParameter("connectionString", _connectionString)
                 .WithParameter("migrationAssemblyName", _migrationAssemblyName)
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<ApplicationUnitOfWork>().As<IApplicationUnitOfWork>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<CustomerRepository>().As<ICustomerRepository>()
+                .InstancePerLifetimeScope();
+
+            builder.RegisterType<CustomerService>().As<ICustomerService>()
                 .InstancePerLifetimeScope();
 
             base.Load(builder);

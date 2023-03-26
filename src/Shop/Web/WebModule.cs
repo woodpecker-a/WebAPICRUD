@@ -1,8 +1,12 @@
 ﻿using Autofac;
+using Web.Models;
 
-internal class WebModule : Module
+public class WebModule : Module
 {
-    public WebModule()
+    protected override void Load(ContainerBuilder builder)
     {
+        builder.RegisterType<CustomerCreateModel>().AsSelf();
+
+        base.Load(builder);
     }
 }
