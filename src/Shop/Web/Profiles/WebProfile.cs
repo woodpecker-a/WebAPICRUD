@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Infrastructure.BusinessObjects;
-using Web.Models;
+using Web.Areas.Admin.Models;
 
 namespace Web.Profiles
 {
@@ -10,7 +10,8 @@ namespace Web.Profiles
         {
             CreateMap<CustomerCreateModel, Customer>()
                 .ReverseMap();
-
+            CreateMap<CustomerEditModel, Customer>()
+                .ReverseMap();
         }
     }
 }
