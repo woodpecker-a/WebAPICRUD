@@ -1,15 +1,15 @@
-using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using Infrastructure;
-using Infrastructure.DbContexts;
-using Infrastructure.Entities;
-using Infrastructure.Services;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Autofac;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
+using I.DbContexts;
+using I;
+using I.Entities;
+using I.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,11 +26,10 @@ try
 
     builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
     builder.Host.ConfigureContainer<ContainerBuilder>(containerBuilder => {
-        containerBuilder.RegisterModule(new WebModule());
-        containerBuilder.RegisterModule(new InfrastructureModule(connectionString,
+        containerBuilder.RegisterModule(new WModule());
+        containerBuilder.RegisterModule(new IFModule(connectionString,
             assemblyName));
     });
-
 
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString, m => m.MigrationsAssembly(assemblyName)));
@@ -48,14 +47,14 @@ try
 
     builder.Services.AddAuthentication()
         .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-            {
-                options.LoginPath = new PathString("/Account/Login");
-                options.AccessDeniedPath = new PathString("/Account/Login");
-                options.LogoutPath = new PathString("/Account/Logout");
-                options.Cookie.Name = "Shop.Identity";
-                options.SlidingExpiration = true;
-                options.ExpireTimeSpan = TimeSpan.FromHours(1);
-            });
+        {
+            options.LoginPath = new PathString("/Account/Login");
+            options.AccessDeniedPath = new PathString("/Account/Login");
+            options.LogoutPath = new PathString("/Account/Logout");
+            options.Cookie.Name = "Shop.Identity";
+            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = TimeSpan.FromHours(1);
+        });
 
     builder.Services.Configure<IdentityOptions>(options =>
     {
@@ -75,14 +74,10 @@ try
         options.User.RequireUniqueEmail = true;
     });
 
-
     builder.Services.AddControllersWithViews();
 
     var app = builder.Build();
 
-    Log.Information("Application Starting.");
-
-    // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
         app.UseMigrationsEndPoint();
@@ -99,12 +94,11 @@ try
 
     app.UseRouting();
 
-    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+        name: "areas",
+        pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
     app.MapControllerRoute(
         name: "default",
@@ -114,7 +108,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Application start-up failed");
+    Log.Fatal("Application Crushed");
 }
 finally
 {
