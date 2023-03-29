@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace W.Areas.Admin.Controllers
 {
@@ -19,7 +20,7 @@ namespace W.Areas.Admin.Controllers
             _roleManager = roleManager;
 
         }
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ApplicationUser user)
         {
             await _roleManager.CreateAsync(new ApplicationRole("Admin"));
             await _roleManager.CreateAsync(new ApplicationRole("Customer"));
@@ -30,7 +31,12 @@ namespace W.Areas.Admin.Controllers
 
         public async Task<IActionResult> SetRole(ApplicationUser user)
         {
-            await _userManager.AddToRoleAsync(user, new string[] { "Customer" });
+            await _userManager.AddToRolesAsync(user, new string[] { "Admin" });
+            await _userManager.AddClaimsAsync(user, new Claim[]
+            {
+                new Claim("ViewShop", "true"),
+                new Claim("CreateShop", "true")
+            });
 
             return View();
         }

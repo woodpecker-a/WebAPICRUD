@@ -82,6 +82,18 @@ try
             policy.RequireRole("Admin");
             policy.RequireRole("Seller");
         });
+
+        options.AddPolicy("ShopView", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("ViewShop", "true");
+        });
+
+        options.AddPolicy("ShopCreate", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireClaim("CreateShop", "true");
+        });
     });
 
     builder.Services.AddControllersWithViews();
