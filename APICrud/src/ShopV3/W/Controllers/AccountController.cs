@@ -6,9 +6,11 @@ using W.Models;
 using Autofac;
 using I.Entities;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace W.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
@@ -28,11 +30,7 @@ namespace W.Controllers
             _scope = scope;
         }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
-
+        [AllowAnonymous]
         public async Task<IActionResult> Register(string? returnUrl = null)
         {
             var model = _scope.Resolve<RegisterModel>();
@@ -41,7 +39,7 @@ namespace W.Controllers
             return View(model);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, AllowAnonymous]
         public async Task<IActionResult> Register(RegisterModel model)
         {
             model.ReturnUrl ??= Url.Content("~/");
@@ -87,6 +85,8 @@ namespace W.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
+
+        [AllowAnonymous]
         public async Task<IActionResult> Login(string? returnUrl = null)
         {
             var model = _scope.Resolve<LoginModel>();
@@ -99,7 +99,7 @@ namespace W.Controllers
             return View(model);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken, AllowAnonymous]
         public async Task<IActionResult> Login(LoginModel model)
         {
             model.ReturnUrl ??= Url.Content("~/");

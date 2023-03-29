@@ -74,6 +74,16 @@ try
         options.User.RequireUniqueEmail = true;
     });
 
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("ShopManagementPolicy", policy =>
+        {
+            policy.RequireAuthenticatedUser();
+            policy.RequireRole("Admin");
+            policy.RequireRole("Seller");
+        });
+    });
+
     builder.Services.AddControllersWithViews();
 
     var app = builder.Build();
@@ -94,6 +104,7 @@ try
 
     app.UseRouting();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllerRoute(
